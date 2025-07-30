@@ -7,20 +7,32 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: Senha123
       MYSQL_DATABASE: meubanco
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: Senha123
     ports:
-      - "3306:3306"
+      - "3307:3306"  # ← MUDOU porta para evitar conflito
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pSenha123"]
+      timeout: 10s
+      retries: 5
+      interval: 10s
 
   backend:
     build: ./backend
     container_name: backend-container
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     ports:
       - "8080:80"
     environment:
       - DB_HOST=mysql
+    networks:
+      - app-network
 
   frontend:
     build: ./frontend
@@ -29,6 +41,12 @@ services:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - app-network
 
 volumes:
   mysql_data:
+
+networks:
+  app-network:
+    driver: bridge

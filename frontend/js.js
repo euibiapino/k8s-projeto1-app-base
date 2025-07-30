@@ -9,7 +9,7 @@ $("#button-blue").on("click", function() {
     }
 
     $.ajax({
-        url: "http://backend-service/index.php",
+        url: "http://localhost:8080/index.php",
         type: "post",
         data: {nome: txt_nome, comentario: txt_comentario, email: txt_email},
         beforeSend: function() {
